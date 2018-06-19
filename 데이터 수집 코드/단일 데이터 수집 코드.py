@@ -4,10 +4,7 @@ import shutil
 import pytube
 import librosa
 
-#기본적으로 사용방식은 코드를 보시면 알겠지만
-#텍스트 파일안에 있는 유투브링크들을 읽어와서 pytube를 통해 동영상을 다운받고
-#ffmpeg를 통해 이를 wav로 변환 합니다.
-
+#하나의 파일에 대한 다운로드와 분할
 def download(link, num):
     yt = pytube.YouTube(link)  # 다운받을 동영상 URL 지정
     vids = yt.streams.all()
@@ -48,32 +45,31 @@ def download(link, num):
 
     print(num + '번 동영상 다운로드 및 mp3 변환 완료!')
 
+#유투브 링크
+link = "https://www.youtube.com/watch?v=bsFZpLNwueY"
 
-#f = open("C:\\Users\\kwon\\Desktop\\개인 프로젝트\\화자인식을 위한 CNN 기반 음성인식 알고리즘의 개발\\데이터\\download.txt")
-#links = f.readlines()
-#f.close()
+print(link)
+#파일 순서(몇번째 입력인지)
+num = 13
 
-#for i in range(len(links)):
-#    print(links[i])
-#    download(links[i], str(i + 1))
+#함수 실행
+download(link, str(num))
 
-numOfInput = 16
+#자르기를 시작하는 위치
 offset = 300
-duration = 5
 
-for i in range(numOfInput):
-    pDir = "C:\\Users\\kwon\\Desktop\\개인 프로젝트\화자인식을 위한 CNN 기반 음성인식 알고리즘의 개발\\데이터\\" + str(i+1) + "\\"
-    len = librosa.get_duration(filename=pDir + str(i+1) + ".wav")
-    iteration = int((len - offset)/duration)
+# 자르는 크기
+duration = 10
 
-    if iteration > 100:
-        iteration = 100
+pDir = "C:\\Users\\kwon\\Desktop\\개인 프로젝트\화자인식을 위한 CNN 기반 음성인식 알고리즘의 개발\\데이터\\" + str(num) + "\\"
+len = librosa.get_duration(filename=pDir + str(num) + ".wav")
+iteration = int((len - offset)/duration)
 
-    for j in range(iteration):
-        y, sr = librosa.load(pDir + str(i+1) + ".wav", sr = None, mono = True, offset = offset + j*duration, duration = duration)
-        librosa.output.write_wav(pDir + "input" + str(j+1) + ".wav", y, sr)
+if iteration > 50:
+    iteration = 50
 
-    print(str(i+1) + "번 파일 분할 완료!" + str(iteration) + "개 파일 생성")
+for j in range(iteration):
+    y, sr = librosa.load(pDir + str(num) + ".wav", sr = None, mono = True, offset = offset + j*duration, duration = duration)
+    librosa.output.write_wav(pDir + "input" + str(j+1) + ".wav", y, sr)
 
-
-
+print(str(num) + "번 파일 분할 완료!" + str(iteration) + "개 파일 생성")
